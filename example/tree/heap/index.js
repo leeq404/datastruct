@@ -51,6 +51,7 @@ class Heap {
     this.heap.length = this.size - 1
     this.size--
     // 调整堆的有序性
+    this.adjustHeap()
     // for (let i = 0; i <= (this.size - 1) / 2; i++) {
     //   if (this.heap[i] < this.heap[2 * i]) {
     //     this.swap(i, i * 2)
@@ -58,6 +59,9 @@ class Heap {
     //     this.swap(i, i * 2 + 1)
     //   }
     // }
+  }
+
+  adjustHeap() {
     for (let i = 0; i < (this.size - 1) / 2; ) {
       if (this.model == 'MAX') {
         if (this.heap[i * 2] > this.heap[i * 2 + 1]) {
