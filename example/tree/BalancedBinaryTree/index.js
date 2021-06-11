@@ -22,22 +22,29 @@ class AVLTree {
     if (!node) {
       return newNode
     }
-    if (newNode.data > node.data) {
+    if (newNode.data > node.data) { /** 节点在根节点的右子树上 */
       node.right = node.right ? this._insert(node.right, newNode) : newNode
       // 添加完节点后检测树的高度
-      let leftHeight = this._height(node.left)
-      let rightHeight = this._height(node.right)
-      if (rightHeight - leftHeight > 1) {
-        /** RR 旋转*/
-        node = this.rRotation(node)
+      if (this._height(node.right) - this._height(node.left) > 1) {
+        /** 在不平衡的状态下判断是RR旋转还是RL旋转 */
+        if (this._height(node.right.right) - this._height(node.right.left) > 0) {
+          /** 在右子树的右子树上，应当进行RR旋转 */
+          node = this.RRRotation(node)
+        } else {
+          /** 在右子树的左子树上，应当进行RL旋转*/
+          node = this.RLRotation(node)
+        }
       }
     } else if (newNode.data < node.data) {
       node.left = node.left ? this._insert(node.left, newNode) : newNode
-      let leftHeight = this._height(node.left)
-      let rightHeight = this._height(node.right)
-      if (leftHeight - rightHeight > 1) {
-        /** LL 旋转*/
-        node = this.lRotation(node)
+      if (this._height(node.left) - this._height(node.right) > 1) {
+        if (this._height(node.left.left) - this._height(node.left.right) > 0) {
+          /** LL旋转 */
+          node = this.LLRotation(node)
+        } else {
+          /** LR旋转 */
+          node = this.LRRotation(node)
+        }
       }
     }
 
@@ -60,9 +67,9 @@ class AVLTree {
     return MaxHeight
   }
 
-  rRotation(node) {
+  RRRotation(node) {
     /**
-     * 1. 破坏者是发现者的右节点的右节点                    10 发现者                      15
+     * 1. 破坏者是发现者的右子树的右子树上                  10 发现者                      15
      *    平衡方法：                                     /   \                         /   \
      *       将发现者的右节点作为根节点                  8     15           RR         10    20
      *       原根节点作为新的根节点的左子树                   /   \         ---->     /   \    \
@@ -71,57 +78,76 @@ class AVLTree {
      *                                                            25 破坏者
      */
 
-    /**
-     * 2. 破坏者是发现者的右节点的左节点                    10 发现者                   10                         15
-     *    平衡方法：                                     /   \                      /   \                      /   \
-     *       将发现者的右节点作为根节点                  8     15           L        8    15      R            10    20
-     *       原根节点作为新的根节点的左子树                   /   \          ---->       /   \      ----->    /   \    \
-     *       新的根节点原有的左子树作为新根节点的右子树       13    20                   13    18             8    13    25
-     *                                                          /                            \
-     *                                                         18 破坏者                      20
-     */
     let temp = node.right // 找到新的根节点
     node.right = null
     let oldNode = node
-    if (temp.right.left) {
+    if (temp.left) {
       // 如果新的根节点有左子树，将左子树作为原根节点的右子树
-      oldRoot.right = temp.right.left
-      temp.right.left = null
+      oldNode.right = temp.left
+      temp.left = null
     }
     temp.left = oldNode // 将原有的根节点作为新的根节点的左子树
     return temp
   }
-
-  lRotation(node) {
+  
+  RLRotation(node) {
     /**
-     * 破坏者是发现者的左节点的左节点                           10 发现者                     5
-     *    平衡方法：                                         /  \                         /   \
+     *  破坏者是发现者的右子树的左子树上                        10                           12
+     *    平衡方法：                                         /   \                        /   \
+     *       将根节点的右子树的左节点作为新的根节点            8     15           RL       10    15
+     *       将新的根节点的左子树作为原根节点的右子树               /  \         ---->    /     /  \
+     *       将新节点的右子树作为原根节点的右子树的左子树          12    18               8     11  28
+     *                                                        /
+     *                                                       11
+     */
+    let temp = node.right
+    let newRoot = temp.left
+    node.right = newRoot.left
+    temp.left = newRoot.right
+    newRoot.left = node
+    newRoot.right = temp
+    return newRoot
+  }
+
+  LLRotation(node) {
+    /**
+     * 破坏者是发现者的左子树的左子树上                          10 发现者                     5
+     *    平衡方法：                                         /   \                        /   \
      *       将发现者的左节点作为根节点                      5     15        LL            3    10
      *       原根节点作为新的根节点的右子树                 /  \             ---->        /    /   \
      *       新的根节点原有的右子树作为新根节点的左子树     3    8                        1    8     15
      *                                                  /
      *                                                 1  破坏者
      */
-
-    /**
-     * 2. 破坏者是发现者的左节点的右节点                        10 发现者                   10                     5
-     *    平衡方法：                                         /   \                      /   \                  /   \
-     *       将发现者的左节点作为根节点                      5     15      R            5     15     L         4     10
-     *       原根节点作为新的根节点的右子树                 /  \           ---->       /  \         ----->    /     /   \
-     *       新的根节点原有的右子树作为新根节点的左子树     3    8                     4    8                 3     8     15
-     *                                                   \                         /
-     *                                                    4  破坏者                3
-     */
     let temp = node.left // 找出新的根节点
     node.left = null
     let oldNode = node
-    if (temp.left.right) {
+    if (temp.right) {
       // 如果新的根节点有右节点，将右子树作为原根节点的左子树
-      oldNode.left = temp.left.right
-      temp.left.right = null
+      oldNode.left = temp.right
+      temp.right = null
     }
     temp.right = oldNode // 将原根节点作为新的根节点的右子树
     return temp
+  }
+
+  LRRotation(node) {
+    /**
+     *  破坏者是在发现者的左子树的右子树上                       10                           8
+     *    平衡方法：                                         /   \                        /   \
+     *       将原根节点的左子树的右节点作为新的根节点         5     15      LR              5    10
+     *       将新的根节点的左子树作为原根节点左子树的右子树  /  \           ---->          /  \    \
+     *       将新的根节点的右子树作为原根节点的左子树      3    8                        3    7    15
+     *                                                      /
+     *                                                     7
+     */
+    let temp = node.left
+    let newRoot = temp.right
+    temp.right = newRoot.left
+    node.left = newRoot.right
+    newRoot.left = temp
+    newRoot.right = node
+    return newRoot
   }
 
   // 层次遍历
@@ -145,13 +171,12 @@ class AVLTree {
 let treeInstance = new AVLTree()
 
 treeInstance.insert(10)
-treeInstance.insert(9)
 treeInstance.insert(8)
-treeInstance.insert(7)
-treeInstance.insert(6)
-treeInstance.insert(5)
-treeInstance.insert(4)
+treeInstance.insert(15)
+treeInstance.insert(12)
+treeInstance.insert(28)
+treeInstance.insert(11)
 let ret = treeInstance.levelOrder()
 console.log(ret)
-console.log(treeInstance.getHeight())
-console.log(JSON.stringify(treeInstance.root))
+// console.log(treeInstance.getHeight())
+// console.log(JSON.stringify(treeInstance.root))
