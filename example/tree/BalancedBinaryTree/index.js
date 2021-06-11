@@ -22,12 +22,13 @@ class AVLTree {
     if (!node) {
       return newNode
     }
-    if (newNode.data > node.data) { /** 节点在根节点的右子树上 */
+    if (newNode.data > node.data) {
+      /** 节点在根节点的右子树上 */
       node.right = node.right ? this._insert(node.right, newNode) : newNode
       // 添加完节点后检测树的高度
       if (this._height(node.right) - this._height(node.left) > 1) {
         /** 在不平衡的状态下判断是RR旋转还是RL旋转 */
-        if (this._height(node.right.right) - this._height(node.right.left) > 0) {
+        if (this._height(node.right.right) > this._height(node.right.left)) {
           /** 在右子树的右子树上，应当进行RR旋转 */
           node = this.RRRotation(node)
         } else {
@@ -38,7 +39,7 @@ class AVLTree {
     } else if (newNode.data < node.data) {
       node.left = node.left ? this._insert(node.left, newNode) : newNode
       if (this._height(node.left) - this._height(node.right) > 1) {
-        if (this._height(node.left.left) - this._height(node.left.right) > 0) {
+        if (this._height(node.left.left) > this._height(node.left.right)) {
           /** LL旋转 */
           node = this.LLRotation(node)
         } else {
@@ -51,7 +52,7 @@ class AVLTree {
     return node
   }
 
-  getHeight() {
+  treeHeight() {
     return this._height(this.root)
   }
 
@@ -89,7 +90,7 @@ class AVLTree {
     temp.left = oldNode // 将原有的根节点作为新的根节点的左子树
     return temp
   }
-  
+
   RLRotation(node) {
     /**
      *  破坏者是发现者的右子树的左子树上                        10                           12
@@ -166,6 +167,116 @@ class AVLTree {
     }
     return this.outPut
   }
+
+  find(data) {
+    let currentNode = this.root
+    while (currentNode) {
+      if (currentNode.data == data) {
+        return currentNode
+      } else if (currentNode.data > data) {
+        currentNode = currentNode.left
+      } else {
+        currentNode = currentNode.right
+      }
+    }
+    console.log('Not find element in the balanced tree.')
+    return false
+  }
+
+  findNodeParent(data) {
+    let currentNode = this.root
+    while (currentNode) {
+      if (data < currentNode.data) {
+        if (currentNode.left && currentNode.left.data == data) {
+          return currentNode
+        } else {
+          currentNode = currentNode.left
+        }
+      } else if (data > currentNode.data) {
+        if (currentNode.right && currentNode.right.data == data) {
+          return currentNode
+        } else {
+          currentNode = currentNode.right
+        }
+      } else {
+        return currentNode
+      }
+    }
+    console.log('Not find the element parent in the balanced tree.')
+    return false
+  }
+
+  delete(data) {
+    this._removeNode(this.root, data)
+  }
+
+  _removeNode(node, data) {
+    /** 删除一个节点的相当于在相反的子树上添加一个节点 */
+    if (!node) return null
+    if (node.data == data) {
+      if (!node.left && !node.right) {
+        node = null
+      } else if (!node.left) {
+        /** 左子树不存在 */
+        node = node.right
+      } else if (!node.right) {
+        /** 右子树不存在 */
+        node = node.left
+      } else {
+        /** 左右子树都存在的情况 */
+        let maxNode = this._findMax(node.left)
+        node.data = maxNode.data
+        node.left = this._removeNode(node.left, maxNode.data)
+        let parentNode = this.findNodeParent(maxNode.data)
+      }
+      /** 每次删除一个节点检测当前树的高度
+       *  找到删除了的节点的父节点，检测左右子树高度
+       */
+    } else if (node.data > data) {
+      node.left = this._removeNode(node.left, data)
+    } else {
+      node.right = this._removeNode(node.right, data)
+    }
+    return node
+  }
+
+  /** 检测当前节点是否平衡 */
+  adjustTree(node) {
+    if (this._height(node.left) - this._height(node.right) > 1) {
+      /** 左旋 */
+      if (this._height(node.left.left) > this._height(node.left.right)) {
+        /** LL旋转 */
+        node = this.LLRotation(node)
+      } else {
+        /** LR旋转 */
+        node = this.LRRotation(node)
+      }
+    } else if (rightHeight - leftHeight > 1) {
+      /** 右旋 */
+      if (this._height(node.right.left) > this._height(node.right.right)) {
+        /** RR旋转 */
+        node = this.RRRotation(node)
+      } else {
+        /** RL旋转 */
+        node = this.RLRotation(node)
+      }
+    }else {
+      /** 找到该节点的父节点 */
+      let parentNode = this.findNodeParent(node)
+      this.adjustTree(parentNode)
+    }
+    return node
+  }
+
+
+  
+  _findMin(node) {
+    return !node ? null : node.left ? this._findMin(node.left) : node
+  }
+
+  _findMax(node) {
+    return !node ? null : node.right ? this._findMax(node.right) : node
+  }
 }
 
 let treeInstance = new AVLTree()
@@ -176,7 +287,12 @@ treeInstance.insert(15)
 treeInstance.insert(12)
 treeInstance.insert(28)
 treeInstance.insert(11)
-let ret = treeInstance.levelOrder()
-console.log(ret)
-// console.log(treeInstance.getHeight())
+treeInstance.insert(30)
+treeInstance.insert(35)
+
+treeInstance.delete(30)
+console.log(treeInstance.levelOrder())
+
+// console.log(treeInstance.findNodeParent(12))
+// console.log(treeInstance.treeHeight())
 // console.log(JSON.stringify(treeInstance.root))
