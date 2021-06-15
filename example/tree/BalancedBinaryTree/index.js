@@ -1,23 +1,11 @@
-class Node {
-  constructor(data) {
-    this.left = null
-    this.data = data
-    this.right = null
-  }
-}
+// import {Node,BSTree} from '../BinarySearchTree/index'
 
-class AVLTree {
-  constructor() {
-    this.root = null
-    this.size = 0
-    this.stack = []
-    this.outPut = []
-  }
-
+const BSTree = require('../BinarySearchTree/index')
+const Node = require('../../../share/node')
+class AVLTree extends BSTree {
   insert(data) {
     this.root = this._insert(this.root, new Node(data))
   }
-
   _insert(node, newNode) {
     if (!node) {
       return newNode
@@ -151,61 +139,6 @@ class AVLTree {
     return newRoot
   }
 
-  // 层次遍历
-  levelOrder() {
-    this.outPut = []
-    this.stack.push(this.root)
-    while (this.stack.length) {
-      let currentNode = this.stack.shift()
-      this.outPut.push(currentNode.data)
-      if (currentNode.left) {
-        this.stack.push(currentNode.left)
-      }
-      if (currentNode.right) {
-        this.stack.push(currentNode.right)
-      }
-    }
-    return this.outPut
-  }
-
-  find(data) {
-    let currentNode = this.root
-    while (currentNode) {
-      if (currentNode.data == data) {
-        return currentNode
-      } else if (currentNode.data > data) {
-        currentNode = currentNode.left
-      } else {
-        currentNode = currentNode.right
-      }
-    }
-    console.log('Not find element in the balanced tree.')
-    return false
-  }
-
-  findParentNode(data) {
-    let currentNode = this.root
-    while (currentNode) {
-      if (data < currentNode.data) {
-        if (currentNode.left && currentNode.left.data == data) {
-          return currentNode
-        } else {
-          currentNode = currentNode.left
-        }
-      } else if (data > currentNode.data) {
-        if (currentNode.right && currentNode.right.data == data) {
-          return currentNode
-        } else {
-          currentNode = currentNode.right
-        }
-      } else {
-        return currentNode
-      }
-    }
-    console.log('Not find the element parent in the balanced tree.')
-    return false
-  }
-
   delete(data) {
     this.root = this._removeNode(this.root, data)
   }
@@ -267,13 +200,4 @@ class AVLTree {
     }
     return node
   }
-
-  _findMin(node) {
-    return !node ? null : node.left ? this._findMin(node.left) : node
-  }
-
-  _findMax(node) {
-    return !node ? null : node.right ? this._findMax(node.right) : node
-  }
 }
-

@@ -1,16 +1,6 @@
-class Node {
-  /** 节点 */
-  constructor(data) {
-    this.left = null
-    this.data = data
-    this.right = null
-  }
-  show() {
-    return this.data
-  }
-}
-
-class BSTree {
+const Node = require('../../../share/node')
+const BaseTree = require('../../../share/baseTree')
+class BSTree extends BaseTree {
   /**
    * 二叉搜索树中很多操作都是基于递归来实现的，因此需要深入理解什么是递归？
    * 递归的优势和劣势是什么？
@@ -28,14 +18,6 @@ class BSTree {
    *    后序
    *    层次
    */
-
-  size = 0           /** 树节点数量 */
-  stack = []         /** 遍历堆栈 */
-  outPut = []        /** 使用不同排序模式输出的顺序数组 */
-  constructor() {
-    this.root = null
-  }
-
   // 节点插入
   insert(data) {
     /**
@@ -233,3 +215,6 @@ class BSTree {
     }
   }
 }
+
+module.exports = BSTree
+
