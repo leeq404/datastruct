@@ -183,7 +183,7 @@ class AVLTree {
     return false
   }
 
-  findNodeParent(data) {
+  findParentNode(data) {
     let currentNode = this.root
     while (currentNode) {
       if (data < currentNode.data) {
@@ -207,7 +207,7 @@ class AVLTree {
   }
 
   delete(data) {
-    this._removeNode(this.root, data)
+    this.root = this._removeNode(this.root, data)
   }
 
   _removeNode(node, data) {
@@ -227,7 +227,7 @@ class AVLTree {
         let maxNode = this._findMax(node.left)
         node.data = maxNode.data
         node.left = this._removeNode(node.left, maxNode.data)
-        let parentNode = this.findNodeParent(maxNode.data)
+        /** 找到父节点后检测父节点是否平衡 */
       }
       /** 每次删除一个节点检测当前树的高度
        *  找到删除了的节点的父节点，检测左右子树高度
@@ -237,39 +237,37 @@ class AVLTree {
     } else {
       node.right = this._removeNode(node.right, data)
     }
-    return node
-  }
-
-  /** 检测当前节点是否平衡 */
-  adjustTree(node) {
-    if (this._height(node.left) - this._height(node.right) > 1) {
-      /** 左旋 */
-      if (this._height(node.left.left) > this._height(node.left.right)) {
-        /** LL旋转 */
-        node = this.LLRotation(node)
-      } else {
-        /** LR旋转 */
-        node = this.LRRotation(node)
-      }
-    } else if (rightHeight - leftHeight > 1) {
-      /** 右旋 */
-      if (this._height(node.right.left) > this._height(node.right.right)) {
-        /** RR旋转 */
-        node = this.RRRotation(node)
-      } else {
-        /** RL旋转 */
-        node = this.RLRotation(node)
-      }
-    }else {
-      /** 找到该节点的父节点 */
-      let parentNode = this.findNodeParent(node)
-      this.adjustTree(parentNode)
+    /** 在回溯阶段检测该节点的平衡性 */
+    if (node) {
+      node = this.adjustTree(node)
     }
     return node
   }
 
+  adjustTree(node) {
+    if (!node) return null
+    if (this._height(node.left) - this._height(node.right) > 1) {
+      // 左旋
+      if (this._height(node.left.left) > this._height(node.left.right)) {
+        // LL旋转
+        node = this.LLRotation(node)
+      } else {
+        // LR旋转
+        node = this.LRRotation(node)
+      }
+    } else if (this._height(node.right) - this._height(node.left) > 1) {
+      // 右旋
+      if (this._height(node.right.left) > this._height(node.right.right)) {
+        // RR旋转
+        node = this.RLRotation(node)
+      } else {
+        // RL旋转
+        node = this.RRRotation(node)
+      }
+    }
+    return node
+  }
 
-  
   _findMin(node) {
     return !node ? null : node.left ? this._findMin(node.left) : node
   }
@@ -279,20 +277,3 @@ class AVLTree {
   }
 }
 
-let treeInstance = new AVLTree()
-
-treeInstance.insert(10)
-treeInstance.insert(8)
-treeInstance.insert(15)
-treeInstance.insert(12)
-treeInstance.insert(28)
-treeInstance.insert(11)
-treeInstance.insert(30)
-treeInstance.insert(35)
-
-treeInstance.delete(30)
-console.log(treeInstance.levelOrder())
-
-// console.log(treeInstance.findNodeParent(12))
-// console.log(treeInstance.treeHeight())
-// console.log(JSON.stringify(treeInstance.root))
