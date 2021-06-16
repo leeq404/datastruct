@@ -78,4 +78,33 @@ class SingleLinkedList {
     return JSON.stringify(this.root)
   }
   //#endregion
+  reverse() {
+    return this._reverse(this.root)
+  }
+
+  //#region  单链表的反转
+  _reverse(Link) {
+    let current = Link.next
+    let head = Link         
+    head.next = null
+    while(current.next) {
+      let temp = current
+      current = current.next
+      temp.next = head
+      head = temp
+    }
+     current.next = head
+     return current
+  }
+  //#endregion
 }
+
+
+let sll = new SingleLinkedList()
+sll.insert(1)
+sll.insert(2)
+sll.insert(3)
+sll.insert(4)
+sll.insert(5)
+
+console.log(sll.reverse())
