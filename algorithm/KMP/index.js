@@ -51,7 +51,7 @@ const KMP = function (s1, s2) {
   let i = 0
   for (let j = 0; j < s2.length; ) {
     // 当i等于模板串的长度时，表示找到了子串
-    if(i==s1.length) return true
+    if (s1[i] == s2[j] && i == s1.length - 1) return true
     if (s1[i] !== s[j]) {
       /**
        * 当i不等于0时，并且当前字符和模板串中的字符不相等时，需要移动模板串
@@ -65,5 +65,5 @@ const KMP = function (s1, s2) {
       j++
     }
   }
-  if(i<s2.length) return false
+  if (i < s2.length) return false
 }
