@@ -52,17 +52,13 @@ class Heap {
     this.size--
     // 调整堆的有序性
     this.adjustHeap()
-    // for (let i = 0; i <= (this.size - 1) / 2; i++) {
-    //   if (this.heap[i] < this.heap[2 * i]) {
-    //     this.swap(i, i * 2)
-    //   } else if (this.heap[i] < this.heap[2 * i + 1]) {
-    //     this.swap(i, i * 2 + 1)
-    //   }
-    // }
   }
 
   adjustHeap() {
-    for (let i = 0; i < (this.size - 1) / 2; ) {
+    /**
+     * 自顶向下，从索引为0的节点和它的子节点作比较，然后交换
+     */
+    for (let i = 0; i < (this.size - 1) / 2/** i大于 size - 1 的话他的子节点索引就超出了长度 */; ) {
       if (this.model == 'MAX') {
         if (this.heap[i * 2] > this.heap[i * 2 + 1]) {
           this.swap(i, i * 2)
